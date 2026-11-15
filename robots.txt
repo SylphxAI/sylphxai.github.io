@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sylphxai.github.io/Google-Photos-Delete-Tool/sitemap.xml
+Sitemap: https://sylphxai.github.io/anymd/sitemap.xml
+Sitemap: https://sylphxai.github.io/firestore_odm/sitemap.xml
+Sitemap: https://sylphxai.github.io/repomap/sitemap.xml
+Sitemap: https://sylphxai.github.io/lockdocs/sitemap.xml
+Sitemap: https://sylphxai.github.io/locus/sitemap.xml
