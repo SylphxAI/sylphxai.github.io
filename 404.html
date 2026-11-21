@@ -16,6 +16,11 @@ if (anymdPrefix.test(pathname)) {
   const cleanPath = pathname.replace(anymdPrefix, '').replace(/(?:\/index)?\.html$/i, '') || '/';
   window.location.replace('https://anymd.sylphx.com' + cleanPath + search + hash);
 }
+const lockdocsPrefix = /^\/lockdocs(?=\/|$)/i;
+if (lockdocsPrefix.test(pathname)) {
+  const cleanPath = pathname.replace(lockdocsPrefix, '').replace(/(?:\/index)?\.html$/i, '') || '/';
+  window.location.replace('https://lockdocs.sylphx.com' + cleanPath + search + hash);
+}
 </script>
 </head>
 <body>
