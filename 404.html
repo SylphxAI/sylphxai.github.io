@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Page not found · Sylphx</title>
+<meta name="robots" content="noindex, follow">
+<script>
+const { pathname, search, hash } = window.location;
+const legacyPrefix = /^\/(?:Google-Photos-Delete-Tool|pixzy)(?=\/|$)/i;
+if (legacyPrefix.test(pathname)) {
+  const cleanPath = pathname.replace(legacyPrefix, '').replace(/(?:\/index)?\.html$/i, '') || '/';
+  window.location.replace('https://pixzy.ai' + cleanPath + search + hash);
+}
+</script>
+</head>
+<body>
+<h1>Page not found</h1>
+<p><a href="https://sylphx.com/">Continue to Sylphx</a></p>
+</body>
+</html>
