@@ -11,6 +11,11 @@ if (legacyPrefix.test(pathname)) {
   const cleanPath = pathname.replace(legacyPrefix, '').replace(/(?:\/index)?\.html$/i, '') || '/';
   window.location.replace('https://pixzy.ai' + cleanPath + search + hash);
 }
+const anymdPrefix = /^\/anymd(?=\/|$)/i;
+if (anymdPrefix.test(pathname)) {
+  const cleanPath = pathname.replace(anymdPrefix, '').replace(/(?:\/index)?\.html$/i, '') || '/';
+  window.location.replace('https://anymd.sylphx.com' + cleanPath + search + hash);
+}
 </script>
 </head>
 <body>
