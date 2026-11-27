@@ -1,0 +1,3 @@
+# Lockdocs
+
+> This file moved to https://lockdocs.sylphx.com/llms.txt
