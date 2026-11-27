@@ -18,32 +18,7 @@ HOSTS = {
     "pdf-reader-mcp": "anymd.sylphx.com",
 }
 # Root pages from before these handoffs; they still forward query and hash by script.
-# The other Anymd pages are converted in the next slices and leave this list.
-NOT_YET_CHECKED = {
-    "anymd/index.html",
-    "lockdocs/index.html",
-    "anymd/docs.html",
-    "anymd/docs/index.html",
-    "anymd/legal/privacy.html",
-    "anymd/legal/pro-terms.html",
-    "anymd/legal/terms.html",
-    "anymd/playground.html",
-    "anymd/tasks/build-video-timeline.html",
-    "anymd/tasks/check-pdf-citation.html",
-    "anymd/tasks/extract-video-frame.html",
-    "anymd/use-cases/pdf-and-office-to-markdown-mcp.html",
-    "anymd/use-cases/verifiable-video-and-cite-check-ai-agents.html",
-    "anymd/vs/docling.html",
-    "anymd/vs/index.html",
-    "anymd/vs/kreuzberg.html",
-    "anymd/vs/llamaparse.html",
-    "anymd/vs/marker.html",
-    "anymd/vs/markitdown.html",
-    "anymd/vs/mistral-ocr.html",
-    "anymd/vs/pdftotext.html",
-    "anymd/vs/pymupdf4llm.html",
-    "anymd/vs/unstructured.html",
-}
+NOT_YET_CHECKED = {"anymd/index.html", "lockdocs/index.html"}
 
 errors = []
 for prefix, host in HOSTS.items():
