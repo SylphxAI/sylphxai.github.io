@@ -1,0 +1,3 @@
+# Anymd
+
+> This file moved to https://anymd.sylphx.com/llms.txt
