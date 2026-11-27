@@ -6,6 +6,8 @@ the same https URL on the product host, with no query or fragment. Pages must
 not carry robots rules or scripts that conflict with that canonical. Each
 handoff path P is published as both P.html and P/index.html, byte-identical.
 A prefix may also keep an llms.txt whose only URL is the product's llms.txt.
+The two product roots keep one exact script that forwards the query and hash
+to the same target, so old campaign links keep their attribution.
 """
 import pathlib
 import re
@@ -17,15 +19,15 @@ HOSTS = {
     "citra": "anymd.sylphx.com",
     "pdf-reader-mcp": "anymd.sylphx.com",
 }
-# Root pages from before these handoffs; they still forward query and hash by script.
-NOT_YET_CHECKED = {"anymd/index.html", "lockdocs/index.html"}
+FORWARDING_ROOTS = {"anymd/index.html", "lockdocs/index.html"}
+FORWARDER = "<script>window.location.replace('{}' + window.location.search + window.location.hash);</script>\n"
 
 errors = []
 for prefix, host in HOSTS.items():
     target_re = re.compile(rf"https://{re.escape(host)}/[A-Za-z0-9._~/-]*")
     for page in sorted(pathlib.Path(prefix).rglob("*")):
         rel = page.as_posix()
-        if page.is_dir() or rel in NOT_YET_CHECKED:
+        if page.is_dir():
             continue
         if rel == f"{prefix}/llms.txt":
             urls = re.findall(r"https?://[^\s)>\]]+", page.read_text(encoding="utf-8"))
@@ -43,6 +45,10 @@ for prefix, host in HOSTS.items():
             errors.append(f"{rel}: needs exactly one canonical")
             continue
         target = canonical[0]
+        if rel in FORWARDING_ROOTS:
+            if html.count(FORWARDER.format(target)) != 1:
+                errors.append(f"{rel}: needs exactly one query and hash forwarder to {target}")
+            html = html.replace(FORWARDER.format(target), "", 1)
         if not target_re.fullmatch(target):
             errors.append(f"{rel}: target {target} is not a plain https://{host}/ URL")
         if refresh != [target] or html.lower().count("http-equiv") != 1:
