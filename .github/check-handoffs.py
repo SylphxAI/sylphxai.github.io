@@ -6,7 +6,8 @@ the same https URL on the product host, with no query or fragment. Pages must
 not carry robots rules or scripts that conflict with that canonical. Each
 handoff path P is published as both P.html and P/index.html, byte-identical.
 A prefix may also keep an llms.txt whose only URL is the product's llms.txt.
-The two product roots keep one exact script that forwards the query and hash
+A page may send people on to its canonical plus one ?entry_surface=<slug>
+attribution parameter. The two product roots keep one exact script that forwards the query and hash
 to the same target, so old campaign links keep their attribution.
 """
 import pathlib
@@ -51,10 +52,14 @@ for prefix, host in HOSTS.items():
             html = html.replace(FORWARDER.format(target), "", 1)
         if not target_re.fullmatch(target):
             errors.append(f"{rel}: target {target} is not a plain https://{host}/ URL")
-        if refresh != [target] or html.lower().count("http-equiv") != 1:
+        dest = refresh[0] if len(refresh) == 1 else target
+        if len(refresh) != 1 or html.lower().count("http-equiv") != 1:
             errors.append(f"{rel}: needs exactly one zero-delay refresh to {target}")
-        if len(hrefs) < 2 or set(hrefs) != {target}:
-            errors.append(f"{rel}: every link must point to {target}")
+        elif dest != target and not re.fullmatch(re.escape(target) + r"\?entry_surface=[a-z][a-z0-9_]*", dest):
+            errors.append(f"{rel}: refresh may add only ?entry_surface=<slug> to {target}")
+        links = re.findall(r'<a href="([^"]*)">', html)
+        if not links or set(links) != {dest} or len(hrefs) != len(links) + 1:
+            errors.append(f"{rel}: every link must point to {dest}")
         if re.search(r"<script|name=\"(robots|googlebot)\"|noindex", html, re.I):
             errors.append(f"{rel}: robots rules or scripts conflict with the canonical")
         if rel == f"{prefix}/index.html":
