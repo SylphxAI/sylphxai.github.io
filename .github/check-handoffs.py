@@ -5,6 +5,7 @@ exact live URL: one canonical, one zero-delay refresh and visible links, all to
 the same https URL on the product host, with no query or fragment. Pages must
 not carry robots rules or scripts that conflict with that canonical. Each
 handoff path P is published as both P.html and P/index.html, byte-identical.
+A prefix may also keep an llms.txt whose only URL is the product's llms.txt.
 """
 import pathlib
 import re
@@ -24,6 +25,11 @@ for prefix, host in HOSTS.items():
     for page in sorted(pathlib.Path(prefix).rglob("*")):
         rel = page.as_posix()
         if page.is_dir() or rel in NOT_YET_CHECKED:
+            continue
+        if rel == f"{prefix}/llms.txt":
+            urls = re.findall(r"https?://[^\s)>\]]+", page.read_text(encoding="utf-8"))
+            if not urls or set(urls) != {f"https://{host}/llms.txt"}:
+                errors.append(f"{rel}: must point only to https://{host}/llms.txt")
             continue
         if page.suffix != ".html":
             errors.append(f"{rel}: only .html handoff pages belong here")
