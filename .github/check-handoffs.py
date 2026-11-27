@@ -1,0 +1,54 @@
+"""Check legacy handoff pages on this host.
+
+Every page under a handoff prefix must send people, crawlers and agents to one
+exact live URL: one canonical, one zero-delay refresh and visible links, all to
+the same https URL on the product host, with no query or fragment. Pages must
+not carry robots rules or scripts that conflict with that canonical. Each
+handoff path P is published as both P.html and P/index.html, byte-identical.
+"""
+import pathlib
+import re
+import sys
+
+HOSTS = {
+    "lockdocs": "lockdocs.sylphx.com",
+    "citra": "anymd.sylphx.com",
+    "pdf-reader-mcp": "anymd.sylphx.com",
+}
+# Root page from before these handoffs; it still forwards query and hash by script.
+NOT_YET_CHECKED = {"lockdocs/index.html"}
+
+errors = []
+for prefix, host in HOSTS.items():
+    target_re = re.compile(rf"https://{re.escape(host)}/[A-Za-z0-9._~/-]*")
+    for page in sorted(pathlib.Path(prefix).rglob("*")):
+        rel = page.as_posix()
+        if page.is_dir() or rel in NOT_YET_CHECKED:
+            continue
+        if page.suffix != ".html":
+            errors.append(f"{rel}: only .html handoff pages belong here")
+            continue
+        html = page.read_text(encoding="utf-8")
+        canonical = re.findall(r'<link rel="canonical" href="([^"]*)">', html)
+        refresh = re.findall(r'<meta http-equiv="refresh" content="0;url=([^"]*)">', html)
+        hrefs = re.findall(r'href="([^"]*)"', html)
+        if len(canonical) != 1 or html.count('rel="canonical"') != 1:
+            errors.append(f"{rel}: needs exactly one canonical")
+            continue
+        target = canonical[0]
+        if not target_re.fullmatch(target):
+            errors.append(f"{rel}: target {target} is not a plain https://{host}/ URL")
+        if refresh != [target] or html.lower().count("http-equiv") != 1:
+            errors.append(f"{rel}: needs exactly one zero-delay refresh to {target}")
+        if len(hrefs) < 2 or set(hrefs) != {target}:
+            errors.append(f"{rel}: every link must point to {target}")
+        if re.search(r"<script|name=\"(robots|googlebot)\"|noindex", html, re.I):
+            errors.append(f"{rel}: robots rules or scripts conflict with the canonical")
+        if rel == f"{prefix}/index.html":
+            continue
+        twin = pathlib.Path(rel[: -len("/index.html")] + ".html" if rel.endswith("/index.html") else rel[: -len(".html")] + "/index.html")
+        if not twin.is_file() or twin.read_bytes() != page.read_bytes():
+            errors.append(f"{rel}: {twin} must exist with identical content")
+
+print("\n".join(errors) or "handoff pages OK")
+sys.exit(1 if errors else 0)
