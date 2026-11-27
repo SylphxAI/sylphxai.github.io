@@ -19,13 +19,5 @@ jobs:
           test -s index.html
           test -s robots.txt
           test -f .nojekyll
-      - name: Verify Lockdocs page handoffs
-        run: |
-          for f in lockdocs/*.html lockdocs/*/*.html; do
-            [ "$f" = lockdocs/index.html ] && continue
-            grep -qx '<meta name="robots" content="noindex, follow">' "$f"
-            url=$(sed -n 's|^<link rel="canonical" href="\(https://lockdocs\.sylphx\.com/[^"]*\)">$|\1|p' "$f")
-            test "$(printf '%s\n' "$url" | grep -c .)" = 1
-            grep -qF "<a href=\"$url\">" "$f"
-            if grep -qiE '<script|http-equiv' "$f"; then echo "$f must not use a script or refresh"; exit 1; fi
-          done
+      - name: Verify legacy handoff pages
+        run: python3 .github/check-handoffs.py
